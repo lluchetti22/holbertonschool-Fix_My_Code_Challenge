@@ -11,48 +11,49 @@
  */
 int delete_dnodeint_at_index(dlistint_t **head, unsigned int index)
 {
-	dlistint_t *saved_head;
-	dlistint_t *tmp;
-	dlistint_t *prev_node, *next_node;
+	dlistint_t *current;
 	unsigned int p;
 
-	if (*head == NULL)
+	if (head == NULL || *head == NULL)
 	{
 		return (-1);
 	}
-	saved_head = *head;
-	p = 0;
-	while (p < index && *head != NULL)
+
+	current = *head;
+
+	/* Case 1: Deleting the very first node (index 0) */
+	if (index == 0)
 	{
-		*head = (*head)->next;
+		*head = current->next;
+		if (*head != NULL)
+		{
+			(*head)->prev = NULL;
+		}
+		free(current);
+		return (1);
+	}
+
+	/* Traverse to the node at the specified index */
+	p = 0;
+	while (p < index && current != NULL)
+	{
+		current = current->next;
 		p++;
 	}
-	if (*head == NULL)
+
+	/* Case 2: Index out of range */
+	if (current == NULL)
 	{
-		*head = saved_head;
 		return (-1);
 	}
-	if (0 == index)
+
+	/* Case 3: Deleting a middle or last node */
+	current->prev->next = current->next;
+	if (current->next != NULL)
 	{
-		tmp = (*head)->next;
-		free(*head);
-		*head = tmp;
-		if (tmp != NULL)
-		{
-			tmp->prev = NULL;
-		}
+		current->next->prev = current->prev;
 	}
-	else
-	{
-		prev_node = (*head)->prev;
-		next_node = (*head)->next;
-		prev_node->next = next_node;
-		if (next_node != NULL)
-		{
-			next_node->prev = prev_node;
-		}
-		free(*head);
-		*head = saved_head;
-	}
+
+	free(current);
 	return (1);
 }
